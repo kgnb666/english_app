@@ -24,6 +24,7 @@ class ChatMessageResponse(BaseModel):
     role: str
     content: str
     grammar_corrections: Optional[dict] = None
+    metadata: Optional[dict] = None
     created_at: datetime
 
     class Config:

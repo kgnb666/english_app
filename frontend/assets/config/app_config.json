@@ -1,0 +1,14 @@
+{
+  "env": "dev",
+  "environments": {
+    "dev": {
+      "apiBaseUrl": "http://192.168.31.206:8002/api/v1"
+    },
+    "test": {
+      "apiBaseUrl": "http://192.168.31.206:8002/api/v1"
+    },
+    "prod": {
+      "apiBaseUrl": "https://your-prod-domain.example.com/api/v1"
+    }
+  }
+}

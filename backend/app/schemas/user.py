@@ -23,9 +23,20 @@ class UserLoginRequest(BaseModel):
 class TokenResponse(BaseModel):
     """登录/注册成功后返回的 token"""
     access_token: str
+    refresh_token: str
     token_type: str = "bearer"
     user_id: str
     username: str
+
+
+class RefreshRequest(BaseModel):
+    """刷新令牌请求"""
+    refresh_token: str = Field(..., min_length=1)
+
+
+class LogoutRequest(BaseModel):
+    """退出登录请求（注销刷新令牌）"""
+    refresh_token: str = Field(..., min_length=1)
 
 
 # ========== 用户信息 ==========

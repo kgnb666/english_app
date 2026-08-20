@@ -4,6 +4,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
 import bcrypt
+import hashlib
+import secrets
 from jose import jwt, JWTError
 
 from app.core.config import settings
@@ -31,6 +33,16 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     )
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+def generate_refresh_token() -> str:
+    """生成随机刷新令牌（不存明文，仅存哈希）"""
+    return secrets.token_urlsafe(48)
+
+
+def hash_token(token: str) -> str:
+    """对刷新令牌做 sha256 哈希，数据库只存哈希"""
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
 def decode_access_token(token: str) -> Optional[dict[str, Any]]:

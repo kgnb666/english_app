@@ -8,9 +8,13 @@ class DailyStatsResponse(BaseModel):
     """每日统计响应"""
     date: date
     study_minutes: int
+    study_seconds: int = 0
     words_learned: int
     words_reviewed: int
     chat_messages: int
+    ai_minutes: int = 0
+    reading_count: int = 0
+    writing_count: int = 0
 
     class Config:
         from_attributes = True
@@ -25,3 +29,6 @@ class LearningSummaryResponse(BaseModel):
     today_minutes: int = 0        # 今日学习分钟
     today_words: int = 0          # 今日学习单词
     today_chat_messages: int = 0  # 今日对话消息数
+    today_ai_minutes: int = 0     # 今日 AI 学习分钟
+    today_reading_count: int = 0  # 今日阅读次数
+    today_writing_count: int = 0  # 今日作文次数

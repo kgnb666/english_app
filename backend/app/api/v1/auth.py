@@ -1,8 +1,8 @@
-﻿# api/v1/auth.py - 用户认证相关 API 端点
+# api/v1/auth.py - 用户认证 + 密码管理 API
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from pydantic import BaseModel, Field
 from app.core.dependencies import get_db, get_current_user_id
 from app.schemas.user import (
     UserRegisterRequest,
@@ -10,54 +10,59 @@ from app.schemas.user import (
     TokenResponse,
     UserProfileResponse,
     UserUpdateRequest,
+    RefreshRequest,
+    LogoutRequest,
 )
 from app.services.auth_service import AuthService
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
-@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+class ChangePasswordRequest(BaseModel):
+    old_password: str = Field(..., min_length=1)
+    new_password: str = Field(..., min_length=6, max_length=100)
+
+
+@router.post("/register", response_model=TokenResponse, status_code=201)
 async def register(req: UserRegisterRequest, db: AsyncSession = Depends(get_db)):
-    """用户注册 - 创建账号并返回 JWT token"""
-    service = AuthService(db)
-    try:
-        return await service.register(req)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    try: return await AuthService(db).register(req)
+    except ValueError as e: raise HTTPException(status_code=409, detail=str(e))
 
 
 @router.post("/login", response_model=TokenResponse)
 async def login(req: UserLoginRequest, db: AsyncSession = Depends(get_db)):
-    """用户登录 - 验证凭证并返回 JWT token"""
-    service = AuthService(db)
-    try:
-        return await service.login(req.username, req.password)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    try: return await AuthService(db).login(req.username, req.password)
+    except ValueError as e: raise HTTPException(status_code=401, detail=str(e))
+
+
+@router.post("/refresh", response_model=TokenResponse)
+async def refresh(req: RefreshRequest, db: AsyncSession = Depends(get_db)):
+    """刷新令牌：换发新 access_token + refresh_token（旧 refresh 轮换失效）"""
+    try: return await AuthService(db).refresh(req.refresh_token)
+    except ValueError as e: raise HTTPException(status_code=401, detail=str(e))
+
+
+@router.post("/logout")
+async def logout(req: LogoutRequest, db: AsyncSession = Depends(get_db)):
+    """退出登录：注销 refresh_token"""
+    return await AuthService(db).logout(req.refresh_token)
 
 
 @router.get("/me", response_model=UserProfileResponse)
-async def get_profile(
-    user_id: str = Depends(get_current_user_id),
-    db: AsyncSession = Depends(get_db),
-):
-    """获取当前登录用户的个人信息"""
-    service = AuthService(db)
-    try:
-        return await service.get_profile(user_id)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+async def get_profile(user_id: str = Depends(get_current_user_id), db: AsyncSession = Depends(get_db)):
+    try: return await AuthService(db).get_profile(user_id)
+    except ValueError as e: raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.patch("/me", response_model=UserProfileResponse)
-async def update_profile(
-    req: UserUpdateRequest,
-    user_id: str = Depends(get_current_user_id),
-    db: AsyncSession = Depends(get_db),
-):
-    """更新当前用户信息 (学习等级、目标等)"""
-    service = AuthService(db)
-    try:
-        return await service.update_profile(user_id, req.model_dump(exclude_unset=True))
+async def update_profile(req: UserUpdateRequest, user_id: str = Depends(get_current_user_id), db: AsyncSession = Depends(get_db)):
+    try: return await AuthService(db).update_profile(user_id, req.model_dump(exclude_unset=True))
+    except ValueError as e: raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.post("/change-password")
+async def change_password(req: ChangePasswordRequest, user_id: str = Depends(get_current_user_id), db: AsyncSession = Depends(get_db)):
+    try: return await AuthService(db).change_password(user_id, req.old_password, req.new_password)
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        if "Current password" in str(e): raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e))

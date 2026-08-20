@@ -1,4 +1,8 @@
-﻿import "api_service.dart";
+import "dart:convert";
+
+import "package:dio/dio.dart";
+
+import "api_service.dart";
 
 class ChatSessionModel {
   final String id, title;
@@ -26,6 +30,12 @@ class ChatMessageModel {
 class ChatService {
   final _api = ApiService();
 
+  /// 根据用户等级与学习记录获取动态推荐话题
+  Future<List<String>> getTopics() async {
+    final r = await _api.dio.get("/chat/topics");
+    return (r.data as List).map((e) => e.toString()).toList();
+  }
+
   Future<List<ChatSessionModel>> getSessions() async {
     final r = await _api.dio.get("/chat/sessions");
     return (r.data as List).map((j) => ChatSessionModel.fromJson(j)).toList();
@@ -48,5 +58,26 @@ class ChatService {
     final r = await _api.dio.post("/chat/sessions/$sessionId/messages", data: {"content": content});
     return ChatMessageModel.fromJson(r.data);
   }
-}
 
+  /// 流式对话：返回 SSE 的 data 行（事件 JSON 字符串）
+  Stream<String> streamMessage(String sessionId, String content) async* {
+    final resp = await _api.dio.post<ResponseBody>(
+      "/chat/sessions/$sessionId/messages/stream",
+      data: {"content": content},
+      options: Options(responseType: ResponseType.stream),
+    );
+    final body = resp.data;
+    if (body == null) return;
+    yield* body.stream
+        .map((chunk) => utf8.decode(chunk))
+        .transform(const LineSplitter())
+        .where((line) => line.startsWith("data: "))
+        .map((line) => line.substring(6).trim());
+  }
+
+  /// AI 生成会话总结
+  Future<Map<String, dynamic>> getSummary(String sessionId) async {
+    final r = await _api.dio.post("/chat/sessions/$sessionId/summary");
+    return r.data as Map<String, dynamic>;
+  }
+}
