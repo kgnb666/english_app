@@ -1,12 +1,52 @@
 # 英语教练（AI English Coach）— Flutter 前端
 
-AI 英语学习助手 App 前端，基于 Flutter 3.38+、Provider、GoRouter、Dio。
+AI 英语学习助手 App 前端，基于 Flutter 3.38+、Provider、GoRouter、Dio。覆盖口语陪练、单词学习、阅读/作文批改、CET 全题型备考、语音（ASR/TTS/发音评测）、学习计划、统计、提醒、备份等功能。
+
+## 功能一览
+
+| 模块 | 页面 |
+|------|------|
+| 启动/登录 | `SplashPage`、`LoginPage`、`RegisterPage` |
+| 首页 | `HomePage`（仪表盘 + 通知铃入口） |
+| 口语陪练 | `ChatListPage`、`ChatPage`（文本 + 流式 + 语音输入输出） |
+| 单词学习 | `VocabularyPage`、`WordDetailPage`、`QuizPage`（选择/拼写/听音） |
+| 阅读/作文 | `ReadingPage` + `ReadingHistoryPage`、`WritingPage` + `WritingHistoryPage` |
+| 个人中心 | `ProfilePage`（等级/目标/深色模式/提醒/备份/服务器设置/修改密码） |
+| 统计/计划 | `StatsPage`（图表）、`PlanPage` |
+| 学习画像 | `LearningProfilePage`（弱项/偏好） |
+| 发音评测 | `PronunciationPage` |
+| CET 备考 | `CetStudyPage`、`CetVocabularyPage`、`CetReadingPage(+Detail)`、`CetWritingPage`、`CetTranslationPage`、`CetListeningPage(+Detail)`、`CetSpeakingPage`、`CetCoachPage` |
 
 ## 运行
 
 ```bash
 flutter pub get
 flutter run
+```
+
+真机调试建议指定服务器地址：
+
+```bash
+flutter run --dart-define=API_BASE_URL=http://192.168.x.x:8002/api/v1
+```
+
+构建调试 APK：
+
+```bash
+flutter build apk --debug
+```
+
+## 目录结构
+
+```
+lib/
+├── app.dart              # GoRouter 路由 + 底部导航（6 Tab）
+├── main.dart             # 启动初始化（配置/通知/学习计时）
+├── config/               # API 地址、主题
+├── l10n/zh_CN.dart       # 全部 UI 文案（AppStrings，禁止页面硬编码中文）
+├── pages/                # 全部页面
+├── services/             # API 调用、认证、通知、TTS、语音识别、学习计时
+└── widgets/              # 通用组件（空状态、加载按钮、结果展示等）
 ```
 
 ## API 服务器地址配置

@@ -12,6 +12,24 @@
 3. 新增文案全部追加到 `AppStrings`，绝对不要在前端页面里硬编码中文字符串
 4. 后端新增表后在 API 端点 return 时用 dict 序列化（不要直接返回 ORM 对象）
 
+## 完成状态（2026-08-26 核对）
+
+| 任务 | 状态 | 说明 |
+|------|------|------|
+| 任务 1：扩充词库 | ✅ 已完成 | `data/import_words.py`、`POST /vocabulary/seed` 批量导入、`GET /vocabulary/words?search=` 均已实现 |
+| 任务 2：阅读/作文历史记录 | ✅ 已完成 | `reading_records` / `writing_records` 表、history 端点、前端历史页均已实现 |
+| 任务 3：安全与可配置性 | ⚠️ 大部分完成 | SECRET_KEY 自动生成、服务器设置、连接测试已完成；请求频率限制未实现 |
+| 任务 4：学习提醒 | ⚠️ 部分完成 | 前端本地通知 + 提醒页已完成；后端 `reminder_enabled` / `reminder_time` 字段未实现（提醒为纯本地） |
+| 任务 5：单词测验模式 | ✅ 已完成 | `GET /vocabulary/test/generate`、`POST /vocabulary/test/submit`、`quiz_page.dart` 均已实现 |
+| 任务 6：错误处理改进 | ✅ 已完成 | `main.py` 全局异常处理器、Dio 统一 401/500/网络错误处理均已实现 |
+| 任务 7a：密码修改 | ✅ 已完成 | `POST /auth/change-password` + 个人中心弹窗 |
+| 任务 7b：启动页完善 | ⚠️ 部分完成 | 启动页已存在（token 检查 + 图标/标语），1.5 秒渐入动画未实现 |
+| 任务 7c：加入生词本 | ✅ 已完成 | `is_bookmarked`、生词本 API、收藏按钮均已实现 |
+| 任务 7d：TTS 语速可调 | ❌ 未完成 | `TtsService.setRate()` 已存在，但聊天页无语速滑块 UI |
+| 任务 7e：首页通知铃 | ✅ 已完成 | 首页铃铛 → `/reminder`；日历/柱状图在统计页（`/stats`） |
+
+> 后续如需继续推进，优先做：请求频率限制、提醒字段后端化、启动页动画、聊天页语速滑块。
+
 ---
 
 ## 任务 1：扩充词库
