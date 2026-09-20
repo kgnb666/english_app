@@ -153,13 +153,15 @@ class VocabService {
   }
 
   Future<VocabWordModel> generateMemoryAid(String wordId) async {
-    final r = await _api.dio.post("/vocabulary/words/$wordId/memory-aid");
+    final r = await _api.dio.post("/vocabulary/words/$wordId/memory-aid",
+        options: ApiService.aiReceiveTimeout());
     return VocabWordModel.fromJson(r.data);
   }
 
   /// 为单词生成固定音频资源并返回（含 audio_url）
   Future<Map<String, dynamic>> ensureAudio(String wordId) async {
-    final r = await _api.dio.post("/vocabulary/words/$wordId/audio");
+    final r = await _api.dio.post("/vocabulary/words/$wordId/audio",
+        options: ApiService.aiReceiveTimeout());
     return r.data as Map<String, dynamic>;
   }
 
@@ -198,7 +200,9 @@ class VocabService {
   // ===== 单词测验 =====
 
   Future<List<QuizQuestion>> generateTest(String testType, {int count = 10}) async {
-    final r = await _api.dio.get("/vocabulary/test/generate", queryParameters: {"test_type": testType, "count": count});
+    final r = await _api.dio.get("/vocabulary/test/generate",
+        queryParameters: {"test_type": testType, "count": count},
+        options: ApiService.aiReceiveTimeout());
     return (r.data["questions"] as List).map((j) => QuizQuestion.fromJson(j)).toList();
   }
 

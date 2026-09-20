@@ -1,5 +1,7 @@
 import "package:dio/dio.dart";
 import "package:flutter/foundation.dart";
+import "../l10n/server_messages.dart";
+import "../l10n/zh_CN.dart";
 import "api_service.dart";
 
 class AuthProvider extends ChangeNotifier {
@@ -78,8 +80,11 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } on DioException catch (e) {
       _errorMessage = e.response?.data is Map
-          ? (e.response!.data["detail"]?.toString() ?? "Login failed")
-          : "Login failed";
+          ? ServerMessages.localize(
+              e.response!.data["detail"],
+              fallback: AppStrings.loginFailed,
+            )
+          : AppStrings.loginFailed;
       _isLoading = false;
       notifyListeners();
       return false;
@@ -103,8 +108,11 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } on DioException catch (e) {
       _errorMessage = e.response?.data is Map
-          ? (e.response!.data["detail"]?.toString() ?? "Registration failed")
-          : "Registration failed";
+          ? ServerMessages.localize(
+              e.response!.data["detail"],
+              fallback: AppStrings.registerFailed,
+            )
+          : AppStrings.registerFailed;
       _isLoading = false;
       notifyListeners();
       return false;

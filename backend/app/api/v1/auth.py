@@ -64,5 +64,4 @@ async def update_profile(req: UserUpdateRequest, user_id: str = Depends(get_curr
 async def change_password(req: ChangePasswordRequest, user_id: str = Depends(get_current_user_id), db: AsyncSession = Depends(get_db)):
     try: return await AuthService(db).change_password(user_id, req.old_password, req.new_password)
     except ValueError as e:
-        if "Current password" in str(e): raise HTTPException(status_code=400, detail=str(e))
         raise HTTPException(status_code=400, detail=str(e))

@@ -51,6 +51,7 @@ class _ChatPageState extends State<ChatPage> {
       _msgs.addAll(loaded.where((m) => !existing.contains(m.id)));
     }
     catch (e) { debugPrint("ChatPage load error: $e"); }
+    if (!mounted) return;
     setState(()=>_loading=false); _scroll();
   }
 
@@ -97,11 +98,15 @@ class _ChatPageState extends State<ChatPage> {
     setState(()=>_sending=false); _scroll();
   }
 
-  /// 流式发送：SSE 逐字渲染；流式不可用时回退普通发送
+  /// 流式发送：SSE 逐字渲染。
+  /// 仅当请求未被服务端接收（连接未建立/建立即断）时才回退普通发送；
+  /// 一旦开始接收流内容，用户消息已入库，任何失败直接抛给上层展示，
+  /// 不再自动重发，避免重复消息与重复 AI 计费。
   Future<ChatMessageModel> _streamOrSend(String sessionId, String text, String tempId) async {
+    var accepted = false;
     try {
-      ChatMessageModel? done;
       await for (final line in _svc.streamMessage(sessionId, text)) {
+        accepted = true;
         if (line.isEmpty) continue;
         final ev = jsonDecode(line) as Map<String, dynamic>;
         switch (ev["type"]) {
@@ -111,26 +116,31 @@ class _ChatPageState extends State<ChatPage> {
             _scroll();
             break;
           case "done":
-            done = ChatMessageModel.fromJson(ev["data"] as Map<String, dynamic>);
-            break;
+            return ChatMessageModel.fromJson(ev["data"] as Map<String, dynamic>);
           case "error":
+            // 服务端结构化错误：retryable=true 映射为 503，上层按可重试提示
             throw DioException(
               requestOptions: RequestOptions(path: ""),
-              type: DioExceptionType.unknown,
+              type: DioExceptionType.badResponse,
+              response: Response(
+                requestOptions: RequestOptions(path: ""),
+                statusCode: ev["retryable"] == true ? 503 : 500,
+              ),
               error: ev["message"] ?? "stream error",
             );
         }
-        if (done != null) break;
       }
-      if (done != null) return done;
       throw DioException(
         requestOptions: RequestOptions(path: ""),
         type: DioExceptionType.unknown,
         error: "stream ended without done",
       );
     } catch (e) {
-      debugPrint("Chat stream failed, fallback to normal send: $e");
-      return await _svc.sendMessage(sessionId, text);
+      if (!accepted) {
+        debugPrint("Chat stream unavailable, fallback to normal send: $e");
+        return await _svc.sendMessage(sessionId, text);
+      }
+      rethrow;
     }
   }
 

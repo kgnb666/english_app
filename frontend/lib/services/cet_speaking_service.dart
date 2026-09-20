@@ -14,11 +14,13 @@ class CetSpeakingService {
     required String question,
     required String userAnswer,
   }) async {
-    final r = await _api.dio.post("/cet/speaking/submit", data: {
-      "exam_type": examType,
-      "question": question,
-      "user_answer": userAnswer,
-    });
+    final r = await _api.dio.post("/cet/speaking/submit",
+        data: {
+          "exam_type": examType,
+          "question": question,
+          "user_answer": userAnswer,
+        },
+        options: ApiService.aiReceiveTimeout());
     return r.data as Map<String, dynamic>;
   }
 

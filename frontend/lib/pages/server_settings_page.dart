@@ -24,7 +24,10 @@ class _ServerSettingsPageState extends State<ServerSettingsPage> {
   @override
   void initState() {
     super.initState();
-    _urlCtrl = TextEditingController(text: ApiConfig.baseUrl);
+    // 地址框显示不含 /api/v1 的基础地址，避免测试连接时拼出错误路径
+    _urlCtrl = TextEditingController(
+      text: ApiConfig.baseUrl.replaceFirst(RegExp(r"/api/v1$"), ""),
+    );
   }
 
   @override
@@ -59,7 +62,9 @@ class _ServerSettingsPageState extends State<ServerSettingsPage> {
       _testing = true;
       _statusText = null;
     });
-    final candidate = _normalize(_urlCtrl.text);
+    // 测试连接时去掉 /api/v1 后缀（/health 是顶层路径）
+    final normalized = _normalize(_urlCtrl.text);
+    final candidate = normalized.replaceFirst(RegExp(r"/api/v1$"), "");
     try {
       final dio = Dio(BaseOptions(
         baseUrl: candidate,

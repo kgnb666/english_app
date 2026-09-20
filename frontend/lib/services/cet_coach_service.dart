@@ -9,7 +9,8 @@ class CetCoachService {
   }
 
   Future<Map<String, dynamic>> getSuggestion() async {
-    final r = await _api.dio.get("/cet/coach/suggestion");
+    final r = await _api.dio.get("/cet/coach/suggestion",
+        options: ApiService.aiReceiveTimeout());
     return r.data as Map<String, dynamic>;
   }
 }

@@ -35,12 +35,12 @@ async def get_current_user_id(
     if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
+            detail="登录已过期，请重新登录",
         )
     user_id: str | None = payload.get("sub")
     if user_id is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token payload",
+            detail="登录凭证无效，请重新登录",
         )
     return user_id

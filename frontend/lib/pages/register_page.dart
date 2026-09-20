@@ -25,7 +25,16 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext ctx) {
     final a = ctx.watch<AuthProvider>(), t = Theme.of(ctx);
     return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.createAccount)),
+      appBar: AppBar(
+        title: Text(AppStrings.createAccount),
+        actions: [
+          IconButton(
+            tooltip: AppStrings.serverSettings,
+            icon: const Icon(Icons.dns_outlined),
+            onPressed: () => ctx.push("/server-settings"),
+          ),
+        ],
+      ),
       body: SafeArea(child: Center(child: SingleChildScrollView(padding: const EdgeInsets.symmetric(horizontal: 32), child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         TextField(controller: _u, decoration: InputDecoration(labelText: AppStrings.username, prefixIcon: const Icon(Icons.person_outline)), textInputAction: TextInputAction.next),
         const SizedBox(height: 16),

@@ -91,6 +91,7 @@ class _PronunciationPageState extends State<PronunciationPage> {
     });
     final ok = await speech.listen(
       onResult: (text, isFinal, confidence) {
+        if (!mounted) return;
         setState(() {
           _recognized = text;
           _confidence = confidence;

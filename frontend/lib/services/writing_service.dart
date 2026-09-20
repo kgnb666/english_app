@@ -21,7 +21,8 @@ class ErrorItem {
 class WritingService {
   final _api = ApiService();
   Future<WritingResult> review(String essay) async {
-    final r = await _api.dio.post("/writing/review", data: {"essay": essay});
+    final r = await _api.dio.post("/writing/review",
+        data: {"essay": essay}, options: ApiService.aiReceiveTimeout());
     return WritingResult.fromJson(r.data);
   }
 

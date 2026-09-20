@@ -14,11 +14,13 @@ class CetTranslationService {
     required String sentenceId,
     required String userTranslation,
   }) async {
-    final r = await _api.dio.post("/cet/translation/submit", data: {
-      "exam_type": examType,
-      "sentence_id": sentenceId,
-      "user_translation": userTranslation,
-    });
+    final r = await _api.dio.post("/cet/translation/submit",
+        data: {
+          "exam_type": examType,
+          "sentence_id": sentenceId,
+          "user_translation": userTranslation,
+        },
+        options: ApiService.aiReceiveTimeout());
     return r.data as Map<String, dynamic>;
   }
 

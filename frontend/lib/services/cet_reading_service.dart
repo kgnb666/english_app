@@ -19,11 +19,13 @@ class CetReadingService {
     required String articleId,
     required List<Map<String, dynamic>> answers,
   }) async {
-    final r = await _api.dio.post("/cet/reading/submit", data: {
-      "exam_type": examType,
-      "article_id": articleId,
-      "answers": answers,
-    });
+    final r = await _api.dio.post("/cet/reading/submit",
+        data: {
+          "exam_type": examType,
+          "article_id": articleId,
+          "answers": answers,
+        },
+        options: ApiService.aiReceiveTimeout());
     return r.data as Map<String, dynamic>;
   }
 

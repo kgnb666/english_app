@@ -24,6 +24,7 @@ class _WritingPageState extends State<WritingPage> {
     if (txt.length < 10) { setState(() => _error = AppStrings.articleTooShort); return; }
     setState(() { _loading = true; _error = null; _result = null; });
     try { _result = await _svc.review(txt); } catch (e) { debugPrint("WritingPage review error: $e"); _error = AppStrings.reviewFailed; }
+    if (!mounted) return;
     setState(() => _loading = false);
   }
 

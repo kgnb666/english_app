@@ -20,3 +20,14 @@ backend/tts_cache/
 frontend/.dart_tool/
 frontend/build/
 frontend/.flutter-plugins-dependencies
+
+# Android 构建产物 / Gradle 缓存
+frontend/android/build/
+frontend/android/.gradle/
+
+# 本地 AI 工具状态
+.mimosa/
+
+# 构建日志与临时诊断截图（App 截图统一放 docs/screenshots/）
+build_log.txt
+diag_*.png

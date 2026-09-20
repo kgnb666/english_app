@@ -37,11 +37,13 @@ class PronunciationService {
     required String recognizedText,
     double? confidence,
   }) async {
-    final r = await _api.dio.post("/pronunciation/evaluate", data: {
-      "target_text": targetText,
-      "recognized_text": recognizedText,
-      if (confidence != null) "confidence": confidence,
-    });
+    final r = await _api.dio.post("/pronunciation/evaluate",
+        data: {
+          "target_text": targetText,
+          "recognized_text": recognizedText,
+          if (confidence != null) "confidence": confidence,
+        },
+        options: ApiService.aiReceiveTimeout());
     return PronunciationResult.fromJson(r.data as Map<String, dynamic>);
   }
 

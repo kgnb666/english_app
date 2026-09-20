@@ -24,27 +24,42 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext ctx) {
     final a = ctx.watch<AuthProvider>(), t = Theme.of(ctx);
     return Scaffold(
-      body: SafeArea(child: Center(child: SingleChildScrollView(padding: const EdgeInsets.symmetric(horizontal: 32), child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Icon(Icons.school, size: 64, color: t.colorScheme.primary), const SizedBox(height: 16),
-        Text(AppStrings.appName, textAlign: TextAlign.center, style: t.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: t.colorScheme.primary)),
-        const SizedBox(height: 8),
-        Text(AppStrings.appSubtitle, textAlign: TextAlign.center, style: t.textTheme.bodyLarge?.copyWith(color: t.colorScheme.onSurface.withAlpha(150))),
-        const SizedBox(height: 48),
-        TextField(controller: _u, decoration: InputDecoration(labelText: AppStrings.username, prefixIcon: const Icon(Icons.person_outline)), textInputAction: TextInputAction.next),
-        const SizedBox(height: 16),
-        TextField(controller: _p, obscureText: _ob, decoration: InputDecoration(labelText: AppStrings.password, prefixIcon: const Icon(Icons.lock_outline), suffixIcon: IconButton(icon: Icon(_ob?Icons.visibility_off:Icons.visibility), onPressed: ()=>setState(()=>_ob=!_ob))), onSubmitted: (_)=>_login()),
-        if (a.errorMessage != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(a.errorMessage!, style: TextStyle(color: t.colorScheme.error, fontSize: 13), textAlign: TextAlign.center)),
-        const SizedBox(height: 24),
-        CommonLoadingButton(
-          label: AppStrings.login,
-          loadingLabel: AppStrings.loggingIn,
-          icon: Icons.login,
-          loading: a.isLoading,
-          onPressed: _login,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Center(child: SingleChildScrollView(padding: const EdgeInsets.symmetric(horizontal: 32), child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Icon(Icons.school, size: 64, color: t.colorScheme.primary), const SizedBox(height: 16),
+              Text(AppStrings.appName, textAlign: TextAlign.center, style: t.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: t.colorScheme.primary)),
+              const SizedBox(height: 8),
+              Text(AppStrings.appSubtitle, textAlign: TextAlign.center, style: t.textTheme.bodyLarge?.copyWith(color: t.colorScheme.onSurface.withAlpha(150))),
+              const SizedBox(height: 48),
+              TextField(controller: _u, decoration: InputDecoration(labelText: AppStrings.username, prefixIcon: const Icon(Icons.person_outline)), textInputAction: TextInputAction.next),
+              const SizedBox(height: 16),
+              TextField(controller: _p, obscureText: _ob, decoration: InputDecoration(labelText: AppStrings.password, prefixIcon: const Icon(Icons.lock_outline), suffixIcon: IconButton(icon: Icon(_ob?Icons.visibility_off:Icons.visibility), onPressed: ()=>setState(()=>_ob=!_ob))), onSubmitted: (_)=>_login()),
+              if (a.errorMessage != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(a.errorMessage!, style: TextStyle(color: t.colorScheme.error, fontSize: 13), textAlign: TextAlign.center)),
+              const SizedBox(height: 24),
+              CommonLoadingButton(
+                label: AppStrings.login,
+                loadingLabel: AppStrings.loggingIn,
+                icon: Icons.login,
+                loading: a.isLoading,
+                onPressed: _login,
+              ),
+              const SizedBox(height: 16),
+              TextButton(onPressed: ()=>ctx.go("/register"), child: Text(AppStrings.noAccount)),
+            ]))),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: IconButton(
+                tooltip: AppStrings.serverSettings,
+                icon: const Icon(Icons.dns_outlined),
+                onPressed: () => ctx.push("/server-settings"),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 16),
-        TextButton(onPressed: ()=>ctx.go("/register"), child: Text(AppStrings.noAccount)),
-      ])))),
+      ),
     );
   }
 }

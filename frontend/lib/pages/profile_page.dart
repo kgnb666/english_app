@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:dio/dio.dart";
 import "package:provider/provider.dart";
 import "package:go_router/go_router.dart";
+import "../l10n/server_messages.dart";
 import "../l10n/zh_CN.dart";
 import "../services/auth_provider.dart";
 import "../services/api_service.dart";
@@ -137,7 +138,7 @@ class _ProfilePageState extends State<ProfilePage> {
     } on DioException catch (e) {
       debugPrint("change password dio error: ${e.response?.data}");
       final detail = e.response?.data is Map ? e.response!.data["detail"] : null;
-      _toast(detail?.toString() ?? AppStrings.changePasswordFailed);
+      _toast(ServerMessages.localize(detail, fallback: AppStrings.changePasswordFailed));
     } catch (e) {
       debugPrint("change password error: $e");
       _toast(AppStrings.changePasswordFailed);

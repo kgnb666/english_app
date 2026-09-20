@@ -160,6 +160,12 @@ flutter analyze
 flutter test
 ```
 
+## 界面截图
+
+| 登录页 | 服务器设置 | 在线 API 文档 |
+|--------|-----------|--------------|
+| ![登录页](docs/screenshots/login.png) | ![服务器设置](docs/screenshots/server-settings.png) | ![Swagger](docs/screenshots/api-docs.png) |
+
 ## 文档索引
 
 | 文档 | 说明 |

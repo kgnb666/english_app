@@ -17,6 +17,10 @@ class ApiService {
   /// 401 未授权回调（由 main.dart 注册，跳转登录页）
   static void Function()? onUnauthorized;
 
+  /// AI 生成类接口专用接收超时（LLM 生成经常超过全局 30s，按请求覆盖避免误报超时）
+  static Options aiReceiveTimeout() =>
+      Options(receiveTimeout: const Duration(minutes: 3));
+
   late final Dio dio;
   final _storage = const FlutterSecureStorage();
   Future<void>? _refreshFuture;

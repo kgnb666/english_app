@@ -30,6 +30,7 @@ class _HomePageState extends State<HomePage> {
       _cetGoal = (results[2] as Map<String, dynamic>)["goal"] as Map<String, dynamic>?;
     }
     catch (e) { debugPrint("HomePage load error: $e"); _error = AppStrings.loadFailed; }
+    if (!mounted) return;
     setState(()=>_loading=false);
   }
 

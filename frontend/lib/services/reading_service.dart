@@ -29,7 +29,8 @@ class ReadingService {
   final _api = ApiService();
 
   Future<ReadingResult> analyze(String article) async {
-    final r = await _api.dio.post("/reading/analyze", data: {"article": article});
+    final r = await _api.dio.post("/reading/analyze",
+        data: {"article": article}, options: ApiService.aiReceiveTimeout());
     return ReadingResult.fromJson(r.data);
   }
 

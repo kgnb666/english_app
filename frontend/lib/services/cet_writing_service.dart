@@ -7,10 +7,12 @@ class CetWritingService {
     required String essay,
     required String examType,
   }) async {
-    final r = await _api.dio.post("/cet/writing/review", data: {
-      "essay": essay,
-      "exam_type": examType,
-    });
+    final r = await _api.dio.post("/cet/writing/review",
+        data: {
+          "essay": essay,
+          "exam_type": examType,
+        },
+        options: ApiService.aiReceiveTimeout());
     return r.data as Map<String, dynamic>;
   }
 
@@ -40,10 +42,12 @@ class CetWritingService {
     required String examType,
     String category = "议论文",
   }) async {
-    final r = await _api.dio.post("/cet/writing/templates/ai-recommend", data: {
-      "exam_type": examType,
-      "category": category,
-    });
+    final r = await _api.dio.post("/cet/writing/templates/ai-recommend",
+        data: {
+          "exam_type": examType,
+          "category": category,
+        },
+        options: ApiService.aiReceiveTimeout());
     return r.data as Map<String, dynamic>;
   }
 }

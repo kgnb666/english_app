@@ -32,7 +32,7 @@ class ChatService {
 
   /// 根据用户等级与学习记录获取动态推荐话题
   Future<List<String>> getTopics() async {
-    final r = await _api.dio.get("/chat/topics");
+    final r = await _api.dio.get("/chat/topics", options: ApiService.aiReceiveTimeout());
     return (r.data as List).map((e) => e.toString()).toList();
   }
 
@@ -55,7 +55,8 @@ class ChatService {
   }
 
   Future<ChatMessageModel> sendMessage(String sessionId, String content) async {
-    final r = await _api.dio.post("/chat/sessions/$sessionId/messages", data: {"content": content});
+    final r = await _api.dio.post("/chat/sessions/$sessionId/messages",
+        data: {"content": content}, options: ApiService.aiReceiveTimeout());
     return ChatMessageModel.fromJson(r.data);
   }
 
@@ -64,7 +65,11 @@ class ChatService {
     final resp = await _api.dio.post<ResponseBody>(
       "/chat/sessions/$sessionId/messages/stream",
       data: {"content": content},
-      options: Options(responseType: ResponseType.stream),
+      options: Options(
+        responseType: ResponseType.stream,
+        // 等待模型产出首个 token 也可能较慢，放宽接收超时
+        receiveTimeout: const Duration(minutes: 3),
+      ),
     );
     final body = resp.data;
     if (body == null) return;
@@ -77,7 +82,8 @@ class ChatService {
 
   /// AI 生成会话总结
   Future<Map<String, dynamic>> getSummary(String sessionId) async {
-    final r = await _api.dio.post("/chat/sessions/$sessionId/summary");
+    final r = await _api.dio.post("/chat/sessions/$sessionId/summary",
+        options: ApiService.aiReceiveTimeout());
     return r.data as Map<String, dynamic>;
   }
 }

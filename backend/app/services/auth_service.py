@@ -28,9 +28,9 @@ class AuthService:
 
     async def register(self, req: UserRegisterRequest) -> TokenResponse:
         result = await self.db.execute(select(User).where(User.username == req.username))
-        if result.scalar_one_or_none(): raise ValueError(f"Username '{req.username}' already exists")
+        if result.scalar_one_or_none(): raise ValueError(f"用户名「{req.username}」已被注册")
         result = await self.db.execute(select(User).where(User.email == req.email))
-        if result.scalar_one_or_none(): raise ValueError(f"Email '{req.email}' already registered")
+        if result.scalar_one_or_none(): raise ValueError(f"邮箱「{req.email}」已被注册")
         user = User(username=req.username, email=req.email, password_hash=hash_password(req.password))
         self.db.add(user); await self.db.flush()
         return await self._issue_tokens(user.id, user.username)
@@ -38,19 +38,19 @@ class AuthService:
     async def login(self, username: str, password: str) -> TokenResponse:
         result = await self.db.execute(select(User).where(User.username == username))
         user = result.scalar_one_or_none()
-        if not user or not verify_password(password, user.password_hash): raise ValueError("Invalid username or password")
+        if not user or not verify_password(password, user.password_hash): raise ValueError("用户名或密码错误")
         return await self._issue_tokens(user.id, user.username)
 
     async def refresh(self, refresh_token: str) -> TokenResponse:
         """用刷新令牌换发新 access + refresh（轮换：旧 refresh 立即失效）"""
         record = await self._get_valid_refresh(refresh_token)
         if not record:
-            raise ValueError("Invalid or expired refresh token")
+            raise ValueError("登录已过期，请重新登录")
         # 轮换：旧 refresh 标记撤销，签发新令牌
         record.revoked = True
         user = (await self.db.execute(select(User).where(User.id == record.user_id))).scalar_one_or_none()
         if not user:
-            raise ValueError("User not found")
+            raise ValueError("用户不存在")
         return await self._issue_tokens(user.id, user.username)
 
     async def logout(self, refresh_token: str) -> dict:
@@ -97,13 +97,13 @@ class AuthService:
     async def get_profile(self, user_id: str) -> UserProfileResponse:
         result = await self.db.execute(select(User).where(User.id == user_id))
         user = result.scalar_one_or_none()
-        if not user: raise ValueError("User not found")
+        if not user: raise ValueError("用户不存在")
         return UserProfileResponse.model_validate(user)
 
     async def update_profile(self, user_id: str, update_data: dict) -> UserProfileResponse:
         result = await self.db.execute(select(User).where(User.id == user_id))
         user = result.scalar_one_or_none()
-        if not user: raise ValueError("User not found")
+        if not user: raise ValueError("用户不存在")
         for key, value in update_data.items():
             if value is not None and hasattr(user, key): setattr(user, key, value)
         await self.db.flush()
@@ -112,9 +112,9 @@ class AuthService:
     async def change_password(self, user_id: str, old_password: str, new_password: str):
         result = await self.db.execute(select(User).where(User.id == user_id))
         user = result.scalar_one_or_none()
-        if not user: raise ValueError("User not found")
-        if not verify_password(old_password, user.password_hash): raise ValueError("Current password is incorrect")
-        if len(new_password) < 6: raise ValueError("New password must be at least 6 characters")
+        if not user: raise ValueError("用户不存在")
+        if not verify_password(old_password, user.password_hash): raise ValueError("当前密码不正确")
+        if len(new_password) < 6: raise ValueError("新密码至少需要 6 位")
         user.password_hash = hash_password(new_password)
         await self.db.flush()
-        return {"message": "Password updated successfully"}
+        return {"message": "密码修改成功"}

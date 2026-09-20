@@ -24,6 +24,7 @@ class _ReadingPageState extends State<ReadingPage> {
     if (txt.length < 10) { setState(() => _error = AppStrings.articleTooShort); return; }
     setState(() { _loading = true; _error = null; _result = null; });
     try { _result = await _svc.analyze(txt); } catch (e) { debugPrint("ReadingPage analyze error: $e"); _error = AppStrings.analysisFailed; }
+    if (!mounted) return;
     setState(() => _loading = false);
   }
 
